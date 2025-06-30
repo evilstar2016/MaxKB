@@ -11,3 +11,4 @@ from .model import *
 from .system_setting import *
 from .valid import *
 from .model_apply import *
+from .display_setting import *

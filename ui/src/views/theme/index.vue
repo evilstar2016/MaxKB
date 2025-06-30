@@ -3,6 +3,7 @@
     <h4 class="p-16-24">{{ $t('views.system.theme.title') }}</h4>
     <el-scrollbar>
       <div class="p-24 pt-0">
+        <!-- 平台主题选择 -->
         <div class="app-card p-24">
           <h5 class="mb-16">{{ $t('views.system.theme.platformDisplayTheme') }}</h5>
           <el-radio-group
@@ -20,6 +21,42 @@
             <el-color-picker v-model="customColor" @change="customColorHandle" />
           </div>
         </div>
+
+        <!-- Logo管理区域 -->
+        <div class="app-card p-24 mt-16">
+          <h5 class="mb-16">{{ $t('views.system.theme.logoManagement') }}</h5>
+          <div class="logo-grid">
+            <LogoUploadCard
+              :title="$t('views.system.theme.websiteLogo')"
+              logo-type="header"
+              :current-logo="getLogoUrl('icon')"
+              @change="handleLogoChange"
+            />
+            <LogoUploadCard
+              :title="$t('views.system.theme.loginLogo')"
+              logo-type="login"
+              :current-logo="getLogoUrl('loginLogo')"
+              @change="handleLogoChange"
+            />
+            <LogoUploadCard
+              :title="$t('views.system.theme.favicon')"
+              logo-type="favicon"
+              :current-logo="getLogoUrl('favicon')"
+              @change="handleLogoChange"
+            />
+          </div>
+        </div>
+
+        <!-- 高级配色区域 -->
+        <div class="app-card p-24 mt-16">
+          <h5 class="mb-16">{{ $t('views.system.theme.advancedColors') }}</h5>
+          <ColorPaletteEditor 
+            v-model="themeForm.colorScheme"
+            @change="onColorSchemeChange"
+          />
+        </div>
+
+        <!-- 平台登录设置 -->
         <div class="app-card p-24 mt-16">
           <h5 class="mb-16">{{ $t('views.system.theme.platformLoginSettings') }}</h5>
           <el-card shadow="never" class="layout-bg">
@@ -37,50 +74,7 @@
                   </el-col>
                   <el-col :span="8">
                     <div class="theme-form">
-                      <el-card shadow="never" class="mb-8">
-                        <div class="flex-between mb-8">
-                          <span class="lighter">{{ $t('views.system.theme.websiteLogo') }}</span>
-                          <el-upload
-                            ref="uploadRef"
-                            action="#"
-                            :auto-upload="false"
-                            :show-file-list="false"
-                            accept="image/jpeg, image/png, image/gif"
-                            :on-change="
-                              (file: any, fileList: any) => onChange(file, fileList, 'icon')
-                            "
-                          >
-                            <el-button size="small">
-                              {{ $t('views.system.theme.replacePicture') }}
-                            </el-button>
-                          </el-upload>
-                        </div>
-                        <el-text type="info" size="small"
-                          >{{ $t('views.system.theme.websiteLogoTip') }}
-                        </el-text>
-                      </el-card>
-                      <el-card shadow="never" class="mb-8">
-                        <div class="flex-between mb-8">
-                          <span class="lighter"> {{ $t('views.system.theme.loginLogo') }}</span>
-                          <el-upload
-                            ref="uploadRef"
-                            action="#"
-                            :auto-upload="false"
-                            :show-file-list="false"
-                            accept="image/jpeg, image/png, image/gif"
-                            :on-change="
-                              (file: any, fileList: any) => onChange(file, fileList, 'loginLogo')
-                            "
-                          >
-                            <el-button size="small">
-                              {{ $t('views.system.theme.replacePicture') }}
-                            </el-button>
-                          </el-upload>
-                        </div>
-                        <el-text type="info" size="small"
-                          >{{ $t('views.system.theme.loginLogoTip') }}
-                        </el-text>
-                      </el-card>
+                      <!-- 登录背景图设置 -->
                       <el-card shadow="never" class="mb-8">
                         <div class="flex-between mb-8">
                           <span class="lighter">{{
@@ -147,6 +141,8 @@
             </div>
           </el-card>
         </div>
+
+        <!-- 平台设置 -->
         <div class="app-card p-24 mt-16">
           <h5 class="mb-16">{{ $t('views.system.theme.platformSetting') }}</h5>
           <el-card shadow="never" class="layout-bg">
@@ -260,7 +256,7 @@ import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import type { FormInstance, FormRules, UploadFiles } from 'element-plus'
 import { cloneDeep } from 'lodash'
 import LoginPreview from './LoginPreview.vue'
-import { themeList, defaultSetting, defaultPlatformSetting } from '@/utils/theme'
+import { themeList, defaultSetting, defaultPlatformSetting, defaultEnhancedSetting, updateCSSVariables, updateFavicon, updateMetaTags } from '@/utils/theme'
 import ThemeApi from '@/api/theme'
 import { MsgSuccess, MsgError } from '@/utils/message'
 import useStore from '@/stores'
@@ -286,8 +282,21 @@ const themeForm = ref<any>({
   icon: '',
   loginLogo: '',
   loginImage: '',
+  favicon: '',
   title: 'MaxKB',
   slogan: t('views.system.theme.defaultSlogan'),
+  colorScheme: {
+    primary: '#3370FF',
+    secondary: '#6B7280',
+    accent: '#10B981'
+  },
+  brandElements: {
+    showBrandName: true,
+    brandPosition: 'left',
+    logoSize: 'medium'
+  },
+  customCSS: '',
+  enableDarkMode: false,
   ...defaultPlatformSetting
 })
 const themeRadio = ref('')
@@ -301,6 +310,55 @@ const rules = reactive<FormRules>({
     { required: true, message: t('views.system.theme.websiteSloganPlaceholder'), trigger: 'blur' }
   ]
 })
+
+// 新增：处理Logo变化
+const handleLogoChange = (file: File | null, logoType: string) => {
+  if (file) {
+    const typeMap: { [key: string]: string } = {
+      'header': 'icon',
+      'login': 'loginLogo',
+      'favicon': 'favicon'
+    }
+    
+    const fieldName = typeMap[logoType] || logoType
+    themeForm.value[fieldName] = file
+    
+    // 实时预览
+    user.setTheme(themeForm.value)
+    
+    // 如果是favicon，立即更新
+    if (logoType === 'favicon' && file) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        updateFavicon(e.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+}
+
+// 新增：处理配色方案变化
+const onColorSchemeChange = (colorScheme: any) => {
+  themeForm.value.colorScheme = colorScheme
+  themeForm.value.theme = colorScheme.primary
+  
+  // 实时预览CSS变量
+  updateCSSVariables({
+    ...themeForm.value,
+    colorScheme
+  })
+  
+  user.setTheme(themeForm.value)
+}
+
+// 新增：获取Logo URL
+const getLogoUrl = (type: string) => {
+  const logo = themeForm.value[type]
+  if (logo instanceof File) {
+    return URL.createObjectURL(logo)
+  }
+  return logo || ''
+}
 
 const onChange = (file: any, fileList: UploadFiles, attr: string) => {
   const isLimit = file?.size / 1024 / 1024 < 10
@@ -317,12 +375,16 @@ const onChange = (file: any, fileList: UploadFiles, attr: string) => {
 function changeThemeHandle(val: string) {
   if (val !== 'custom') {
     themeForm.value.theme = val
+    themeForm.value.colorScheme.primary = val
+    updateCSSVariables(themeForm.value)
     user.setTheme(themeForm.value)
   }
 }
 
 function customColorHandle(val: string) {
   themeForm.value.theme = val
+  themeForm.value.colorScheme.primary = val
+  updateCSSVariables(themeForm.value)
   user.setTheme(themeForm.value)
 }
 
@@ -354,11 +416,20 @@ const updateTheme = async (formEl: FormInstance | undefined, test?: string) => {
     if (valid) {
       let fd = new FormData()
       Object.keys(themeForm.value).map((item) => {
-        fd.append(item, themeForm.value[item])
+        const value = themeForm.value[item]
+        if (typeof value === 'object' && !(value instanceof File)) {
+          fd.append(item, JSON.stringify(value))
+        } else {
+          fd.append(item, value)
+        }
       })
       ThemeApi.postThemeInfo(fd, loading).then((res) => {
         user.theme()
         cloneTheme.value = cloneDeep(themeForm.value)
+        
+        // 更新页面meta信息
+        updateMetaTags(themeForm.value)
+        
         MsgSuccess(t('views.system.theme.saveSuccess'))
       })
     }
@@ -374,8 +445,17 @@ onMounted(() => {
       ? themeInfo.value.theme
       : 'custom'
     customColor.value = themeInfo.value.theme
-    themeForm.value = cloneDeep(themeInfo.value)
-    cloneTheme.value = cloneDeep(themeInfo.value)
+    
+    // 合并默认配置和服务器配置
+    themeForm.value = {
+      ...defaultEnhancedSetting,
+      ...cloneDeep(themeInfo.value)
+    }
+    
+    cloneTheme.value = cloneDeep(themeForm.value)
+    
+    // 应用现有的CSS变量
+    updateCSSVariables(themeForm.value)
   }
 })
 </script>
@@ -398,6 +478,13 @@ onMounted(() => {
     text-align: right;
     box-sizing: border-box;
     box-shadow: 0px -2px 4px 0px rgba(31, 35, 41, 0.08);
+  }
+
+  .logo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
   }
 
   .theme-preview {

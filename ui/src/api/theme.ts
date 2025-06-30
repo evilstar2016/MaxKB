@@ -16,10 +16,16 @@ const getThemeInfo: (loading?: Ref<boolean>) => Promise<Result<any>> = (loading)
  * * formData {
  *   theme
  *   icon
+ *   headerLogo
  *   loginLogo
  *   loginImage
+ *   favicon
  *   title
  *   slogan
+ *   colorScheme
+ *   brandElements
+ *   customCSS
+ *   enableDarkMode
  * }
  */
 const postThemeInfo: (data: any, loading?: Ref<boolean>) => Promise<Result<boolean>> = (

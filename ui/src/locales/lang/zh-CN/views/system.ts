@@ -107,9 +107,16 @@ export default {
     green: '松石绿',
     purple: '神秘紫',
     red: '胭脂红',
+    
+    // 新增：Logo管理相关
+    logoManagement: 'Logo 管理',
+    
+    // 新增：高级配色相关
+    advancedColors: '高级配色',
     loginBackground: '登录背景图',
     loginLogo: '登录 Logo',
     websiteLogo: '网站 Logo',
+    favicon: '网站图标',
     replacePicture: '替换图片',
     websiteLogoTip: '顶部网站显示的 Logo，建议尺寸 48*48，支持 JPG、PNG、GIF，大小不超过 10MB',
     loginLogoTip: '登录页面右侧 Logo，建议尺寸 204*52，支持 JPG、PNG、GIF，大小不超过 10 MB',

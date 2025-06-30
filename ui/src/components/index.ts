@@ -25,6 +25,8 @@ import LogoIcon from './logo/LogoIcon.vue'
 import SendIcon from './logo/SendIcon.vue'
 import CodemirrorEditor from './codemirror-editor/index.vue'
 import ModelSelect from './model-select/index.vue'
+import LogoUploadCard from './LogoUploadCard.vue'
+import ColorPaletteEditor from './ColorPaletteEditor.vue'
 export default {
   install(app: App) {
     app.component(AppIcon.name, AppIcon)
@@ -53,5 +55,7 @@ export default {
     app.component(CodemirrorEditor.name, CodemirrorEditor)
     app.component(MdEditorMagnify.name, MdEditorMagnify)
     app.component(ModelSelect.name, ModelSelect)
+    app.component('LogoUploadCard', LogoUploadCard)
+    app.component('ColorPaletteEditor', ColorPaletteEditor)
   }
 }
