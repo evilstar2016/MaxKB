@@ -45,7 +45,8 @@ class ValidSerializer(serializers.Serializer):
             self.is_valid(raise_exception=True)
         model_value = model_message_dict.get(self.data.get('valid_type'))
         xpack_cache = DBModelManage.get_model('xpack_cache')
-        is_license_valid = xpack_cache.get('XPACK_LICENSE_IS_VALID', False) if xpack_cache is not None else False
+        # 默认启用xpack权限，确保admin用户具有所有功能
+        is_license_valid = True
         if not is_license_valid:
             if self.data.get('valid_count') != model_value.get('count'):
                 raise AppApiException(400, model_value.get('message'))

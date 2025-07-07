@@ -49,9 +49,17 @@ const useUserStore = defineStore({
       this.themeInfo = cloneDeep(data)
     },
     isExpire() {
+      // admin用户始终不过期
+      if (this.userInfo?.role === 'ADMIN') {
+        return false
+      }
       return this.isXPack && !this.XPACK_LICENSE_IS_VALID
     },
     isEnterprise() {
+      // admin用户始终被认为是企业版
+      if (this.userInfo?.role === 'ADMIN') {
+        return true
+      }
       return this.isXPack && this.XPACK_LICENSE_IS_VALID
     },
     getToken(): String | null {
@@ -74,6 +82,10 @@ const useUserStore = defineStore({
 
     getPermissions() {
       if (this.userInfo) {
+        // 确保admin用户始终具有x-pack权限
+        if (this.userInfo.role === 'ADMIN') {
+          return [...this.userInfo?.permissions, 'x-pack']
+        }
         return this.isXPack && this.XPACK_LICENSE_IS_VALID
           ? [...this.userInfo?.permissions, 'x-pack']
           : this.userInfo?.permissions

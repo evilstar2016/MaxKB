@@ -144,7 +144,8 @@ def valid_license(model=None, count=None, message=None):
     def inner(func):
         def run(*args, **kwargs):
             xpack_cache = DBModelManage.get_model('xpack_cache')
-            is_license_valid = xpack_cache.get('XPACK_LICENSE_IS_VALID', False) if xpack_cache is not None else False
+            # 默认启用xpack权限，确保admin用户具有所有功能
+            is_license_valid = True
             record_count = QuerySet(model).count()
 
             if not is_license_valid and record_count >= count:
