@@ -26,7 +26,9 @@ urlpatterns = [
     path('model/<str:model_id>/meta', views.Model.ModelMeta.as_view(), name='model/operate/meta'),
     path('email_setting', views.SystemSetting.Email.as_view(), name='email_setting'),
     path('display/info', views.DisplaySettingView.as_view(), name='display_info'),
-    path('display/update', views.DisplaySettingView.as_view(), name='display_update'),
+    path('display/update', views.DisplaySettingUpdateView.as_view(), name='display_update'),
+    path('auth/types', views.AuthTypesView.as_view(), name='auth_types'),
+    path('qr_type', views.QrTypeView.as_view(), name='qr_type'),
     path('valid/<str:valid_type>/<int:valid_count>', views.Valid.as_view())
 
 ]

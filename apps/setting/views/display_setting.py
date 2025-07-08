@@ -13,11 +13,9 @@ from common.constants.permission_constants import RoleConstants
 
 class DisplaySettingView(APIView):
     """外观设置API视图"""
-    authentication_classes = [TokenAuth]
     
-    @has_permissions(RoleConstants.ADMIN)
     def get(self, request):
-        """获取外观设置"""
+        """获取外观设置 - 公开访问，不需要认证"""
         try:
             # 返回默认的主题设置
             default_settings = {
@@ -57,6 +55,11 @@ class DisplaySettingView(APIView):
                 {'code': 500, 'message': f'获取外观设置失败: {str(e)}'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
+class DisplaySettingUpdateView(APIView):
+    """外观设置更新API视图 - 需要管理员权限"""
+    authentication_classes = [TokenAuth]
     
     @has_permissions(RoleConstants.ADMIN)
     def post(self, request):
@@ -91,6 +94,53 @@ class DisplaySettingView(APIView):
         except Exception as e:
             return Response(
                 {'code': 500, 'message': f'更新外观设置失败: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+class AuthTypesView(APIView):
+    """认证类型API视图 - 公开访问"""
+    
+    def get(self, request):
+        """获取认证类型列表"""
+        try:
+            # 返回默认的认证类型配置，只支持基本的用户名密码登录
+            auth_types = {
+                'default': 'user',
+                'types': ['user'],  # 只支持基本的用户登录
+                'oauth': []  # 没有OAuth认证方式
+            }
+            return Response({
+                'code': 200,
+                'message': 'success', 
+                'data': auth_types
+            })
+        except Exception as e:
+            return Response(
+                {'code': 500, 'message': f'获取认证类型失败: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class QrTypeView(APIView):
+    """二维码类型API视图 - 公开访问"""
+    
+    def get(self, request):
+        """获取二维码类型配置"""
+        try:
+            # 返回默认的二维码配置，当前不支持二维码登录
+            qr_config = {
+                'enabled': False,
+                'types': [],
+                'message': '当前版本不支持二维码登录'
+            }
+            return Response({
+                'code': 200,
+                'message': 'success',
+                'data': qr_config
+            })
+        except Exception as e:
+            return Response(
+                {'code': 500, 'message': f'获取二维码配置失败: {str(e)}'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
     
