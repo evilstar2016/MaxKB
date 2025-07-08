@@ -86,47 +86,57 @@ class SystemDisplaySetting(models.Model):
         verbose_name_plural = '系统外观设置'
 
     def to_dict(self):
-        """转换为字典格式"""
-        return {
-            'id': getattr(self, 'id', None),
-            'theme': self.theme_color,  # 兼容原有字段
-            'icon': self.header_logo.url if self.header_logo else '',  # 兼容原有字段
-            'header_logo': self.header_logo.url if self.header_logo else '',
-            'login_logo': self.login_logo.url if self.login_logo else '',
-            'favicon': self.favicon.url if self.favicon else '',
-            'title': self.site_title,
-            'slogan': self.site_slogan,
-            'primary_color': self.primary_color,
-            'secondary_color': self.secondary_color,
-            'accent_color': self.accent_color,
-            'color_scheme': self.color_scheme or {
-                'primary': self.primary_color,
-                'secondary': self.secondary_color,
-                'accent': self.accent_color
-            },
-            'brand_elements': self.brand_elements or {
+            """转换为字典格式"""
+            # 兼容前端期望的字段格式
+            result = {
+                'id': getattr(self, 'id', None),
+                'theme': self.theme_color,  # 兼容原有字段
+                'icon': self.header_logo.url if self.header_logo else '/static/ui/MaxKB.gif',  # 兼容原有字段
+                'loginLogo': self.login_logo.url if self.login_logo else '/static/ui/MaxKB.gif',
+                'loginImage': self.login_background.url if self.login_background else '/static/ui/login-bg.jpg',
+                'favicon': self.favicon.url if self.favicon else '/static/ui/favicon.ico',
+                'title': self.site_title,
+                'slogan': self.site_slogan,
+                'colorScheme': self.color_scheme or {
+                    'primary': self.primary_color,
+                    'secondary': self.secondary_color,
+                    'accent': self.accent_color
+                },
+                'brandElements': self.brand_elements or {
+                    'showBrandName': self.show_brand_name,
+                    'brandPosition': 'left',
+                    'logoSize': 'medium'
+                },
+                'customCSS': self.custom_css,
+                'enableDarkMode': self.enable_dark_mode,
+                'showUserManual': self.show_user_manual,
+                'userManualUrl': self.user_manual_url or 'https://maxkb.cn/docs/',
+                'showForum': self.show_forum,
+                'forumUrl': self.forum_url or 'https://github.com/1panel-dev/MaxKB/discussions',
+                'showProject': self.show_project,
+                'projectUrl': self.project_url or 'https://github.com/1panel-dev/MaxKB',
+                
+                # 同时保留原有字段名以确保兼容性
+                'header_logo': self.header_logo.url if self.header_logo else '',
+                'login_logo': self.login_logo.url if self.login_logo else '',
+                'login_image': self.login_background.url if self.login_background else '',
+                'primary_color': self.primary_color,
+                'secondary_color': self.secondary_color,
+                'accent_color': self.accent_color,
+                'custom_css': self.custom_css,
+                'login_layout': self.login_layout,
+                'enable_dark_mode': self.enable_dark_mode,
                 'show_brand_name': self.show_brand_name,
-                'brand_position': 'left',
-                'logo_size': 'medium'
-            },
-            'custom_css': self.custom_css,
-            'login_image': self.login_background.url if self.login_background else '',  # 兼容原有字段
-            'login_layout': self.login_layout,
-            'enable_dark_mode': self.enable_dark_mode,
-            'show_brand_name': self.show_brand_name,
-            'show_user_manual': self.show_user_manual,
-            'user_manual_url': self.user_manual_url,
-            'show_forum': self.show_forum,
-            'forum_url': self.forum_url,
-            'show_project': self.show_project,
-            'project_url': self.project_url,
-            'showUserManual': self.show_user_manual,  # 兼容前端字段
-            'userManualUrl': self.user_manual_url,
-            'showForum': self.show_forum,
-            'forumUrl': self.forum_url,
-            'showProject': self.show_project,
-            'projectUrl': self.project_url,
-        }
+                'show_user_manual': self.show_user_manual,
+                'user_manual_url': self.user_manual_url,
+                'show_forum': self.show_forum,
+                'forum_url': self.forum_url,
+                'show_project': self.show_project,
+                'project_url': self.project_url,
+            }
+            return result
+
+
 
     @classmethod
     def get_setting(cls):
