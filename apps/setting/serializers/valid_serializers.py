@@ -21,9 +21,16 @@ from users.models import User
 from django.utils.translation import gettext_lazy as _
 
 model_message_dict = {
-    'dataset': {'model': DataSet, 'count': 50,
+    'dataset': {'model': DataSet, 'count': 999999,
                 'message': _(
-                    'The community version supports up to 50 knowledge bases. If you need more knowledge bases, please contact us (https://fit2cloud.com/).')},
+                    'The community version supports up to 999999 knowledge bases. If you need more knowledge bases, please contact us (https://fit2cloud.com/).')},
+    'application': {'model': Application, 'count': 999999,
+                    'message': _(
+                        'The community version supports up to 999999 applications. If you need more applications, please contact us (https://fit2cloud.com/).')},
+    'user': {'model': User, 'count': 999999,
+             'message': _(
+                 'The community version supports up to 999999 users. If you need more users, please contact us (https://fit2cloud.com/).')}
+},
     'application': {'model': Application, 'count': 5,
                     'message': _(
                         'The community version supports up to 5 applications. If you need more applications, please contact us (https://fit2cloud.com/).')},
@@ -46,11 +53,6 @@ class ValidSerializer(serializers.Serializer):
         model_value = model_message_dict.get(self.data.get('valid_type'))
         xpack_cache = DBModelManage.get_model('xpack_cache')
         # 默认启用xpack权限，确保admin用户具有所有功能
+        # 完全移除限制检查，允许无限制使用
         is_license_valid = True
-        if not is_license_valid:
-            if self.data.get('valid_count') != model_value.get('count'):
-                raise AppApiException(400, model_value.get('message'))
-            if QuerySet(
-                    model_value.get('model')).count() >= model_value.get('count'):
-                raise AppApiException(400, model_value.get('message'))
         return True

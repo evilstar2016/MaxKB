@@ -143,20 +143,11 @@ def post(post_function):
 def valid_license(model=None, count=None, message=None):
     def inner(func):
         def run(*args, **kwargs):
-            xpack_cache = DBModelManage.get_model('xpack_cache')
-            # 默认启用xpack权限，确保admin用户具有所有功能
-            is_license_valid = True
-            record_count = QuerySet(model).count()
-
-            if not is_license_valid and record_count >= count:
-                error_message = message or f'超出限制{count}, 请联系我们（https://fit2cloud.com/）。'
-                raise AppApiException(400, error_message)
-
+            # 完全移除许可证限制检查，允许无限制使用
             return func(*args, **kwargs)
-
         return run
-
     return inner
+
 
 
 def parse_image(content: str):
