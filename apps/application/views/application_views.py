@@ -700,3 +700,16 @@ class Application(APIView):
         def get(self, request: Request):
             return result.success(ApplicationSerializer.McpServers(
                 data={'mcp_servers': request.query_params.get('mcp_servers')}).get_mcp_servers())
+
+    class Setting(APIView):
+        authentication_classes = [TokenAuth]
+        
+        def get(self, request, application_id):
+            """
+            获取应用设置
+            """
+            try:
+                # 这里可以返回应用的设置信息，暂时返回一个空对象
+                return result.success({})
+            except Exception as e:
+                return result.error(500, str(e))

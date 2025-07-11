@@ -4,6 +4,7 @@ from . import views
 
 app_name = "application"
 urlpatterns = [
+    path('application/<str:application_id>/setting', views.Application.Setting.as_view()),
     path('application', views.Application.as_view(), name="application"),
     path('application/import', views.Application.Import.as_view()),
     path('application/profile', views.Application.Profile.as_view(), name='application/profile'),
@@ -87,6 +88,7 @@ urlpatterns = [
     path('application/<str:application_id>/work_flow_version/<str:work_flow_version_id>',
          views.ApplicationVersionView.Operate.as_view()),
     path('application/<str:application_id>/play_demo_text', views.Application.PlayDemoText.as_view(),
-         name='application/audio')
+         name='application/audio'),
+    path('application/<str:application_id>/setting', views.Application.Setting.as_view())
 
 ]
